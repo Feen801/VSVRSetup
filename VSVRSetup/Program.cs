@@ -19,17 +19,17 @@ namespace VSVRSetup
             {
                 DirectoryInfo parentDir = Directory.GetParent(args[0]);
                 string currentDir = parentDir.FullName;
-                string dataPath = "\\Virtual Succubus_Data\\data.unity3d";
+                string dataPath = /*"\\Virtual Succubus_Data\\data.unity3d"*/ "\\Virtual Succubus_Data\\globalgamemanagers";
                 Console.WriteLine($"Patching in VR devices in {currentDir}");
                 try
                 {
                     AssetsManager assetsManager = new AssetsManager();
                     var assetsReplacers = new List<AssetsReplacer>();
-                    var bundleReplacers = new List<BundleReplacer>();
+                    //var bundleReplacers = new List<BundleReplacer>();
                     assetsManager.LoadClassPackage($"{thisDir}/classdata.tpk");
-                    var bundleFileInstance = assetsManager.LoadBundleFile($"{currentDir}{dataPath}");
-                    var bundleFile = bundleFileInstance.file;
-                    var bundleFileAssetsInstance = assetsManager.LoadAssetsFileFromBundle(bundleFileInstance, 0, false);
+                    //var bundleFileInstance = assetsManager.LoadBundleFile($"{currentDir}{dataPath}");
+                    //var bundleFile = bundleFileInstance.file;
+                    var bundleFileAssetsInstance = /*assetsManager.LoadAssetsFileFromBundle(bundleFileInstance, 0, false);*/ assetsManager.LoadAssetsFile($"{currentDir}{dataPath}", true);
                     var bundleFileAssets = bundleFileAssetsInstance.file;
                     Console.WriteLine($"Unity Version {bundleFileAssets.Metadata.UnityVersion}");
                     assetsManager.LoadClassDatabaseFromPackage(bundleFileAssets.Metadata.UnityVersion);
@@ -50,14 +50,14 @@ namespace VSVRSetup
                         assetsReplacers.Add(new AssetsReplacerFromMemory(bundleFileAssets, buildSettings, buildSettingsField));
                     }
 
-                    bundleReplacers.Add(new BundleReplacerFromAssets(bundleFileAssetsInstance.name, null, bundleFileAssets, assetsReplacers));
+                    //bundleReplacers.Add(new BundleReplacerFromAssets(bundleFileAssetsInstance.name, null, bundleFileAssets, assetsReplacers));
 
                     using (AssetsFileWriter writer = new AssetsFileWriter(($"{currentDir}{dataPath}.mod")))
                     {
-                        bundleFile.Write(writer, bundleReplacers);
+                        bundleFileAssets.Write(writer, 0, assetsReplacers);
                         writer.Close();
                     }
-                    bundleFileInstance.BundleStream.Close();
+                    bundleFileAssets.Close();
 
                     File.Move($"{currentDir}{dataPath}", $"{currentDir}{dataPath}.bak");
                     File.Move($"{currentDir}{dataPath}.mod", $"{currentDir}{dataPath}");
